@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> <link rel="stylesheet" href="style.css">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organ Donation Network</title>
+ <script>
+  const backendUrl = "http://127.0.0.1:5000";
+
+  function submitDonorData() {
+    const donorData = {
+      donor_id: document.getElementById("donor_id").value,
+      organ_type: document.getElementById("donor_organ").value,
+      blood_type: document.getElementById("donor_blood").value,
+      hla_typing: document.getElementById("donor_hla").value,
+    };
+
+    fetch(`${backendUrl}/donor`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(donorData),
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Donor Response:", data);
+        alert("Donor Registered: " + JSON.stringify(data));
+      })
+      .catch(error => {
+        console.error("Error submitting donor data:", error);
+      });
+  }
+
+  function submitRecipientData() {
+    const recipientData = {
+      recipient_id: document.getElementById("recipient_id").value,
+      organ_type: document.getElementById("recipient_organ").value,
+      blood_type: document.getElementById("recipient_blood").value,
+      hla_typing: document.getElementById("recipient_hla").value,
+    };
+
+    fetch(`${backendUrl}/recipient`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(recipientData),
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Recipient Response:", data);
+        alert("Recipient Registered: " + JSON.stringify(data));
+      })
+      .catch(error => {
+        console.error("Error submitting recipient data:", error);
+      });
+  }
+
+  function processMatch() {
+    const donorData = {
+      donor_id: document.getElementById("donor_id").value,
+      organ_type: document.getElementById("donor_organ").value,
+      blood_type: document.getElementById("donor_blood").value,
+      hla_typing: document.getElementById("donor_hla").value,
+    };
+
+    const recipientData = {
+      recipient_id: document.getElementById("recipient_id").value,
+      organ_type: document.getElementById("recipient_organ").value,
+      blood_type: document.getElementById("recipient_blood").value,
+      hla_typing: document.getElementById("recipient_hla").value,
+    };
+
+    fetch(`${backendUrl}/match`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ donor: donorData, recipient: recipientData }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Match Response:", data);
+        if (data.message === "Match found") {
+          document.getElementById("matchDetails").innerHTML = `
+            <strong>Match Found:</strong><br>
+            Donor ID: ${data.match_data.donor_id}<br>
+            Recipient ID: ${data.match_data.recipient_id}<br>
+            Compatibility Score: ${data.match_data.compatibility_score}<br>
+            Timestamp: ${data.match_data.timestamp}
+          `;
+        } else {
+          document.getElementById("matchDetails").innerText = data.message;
+        }
+      })
+      .catch(error => {
+        console.error("Error processing match:", error);
+      });
+  }
+</script>
+
+</head>
+<body>
+  <header>
+    <h1>Secure Decentralized Organ Donation Network</h1>
+  </header>
+
+  <main>
+    <h2>Donor Registration</h2>
+    <form id="donorForm">
+      <label for="donor_id">Donor ID</label>
+      <input type="text" id="donor_id" name="donor_id" required>
+
+      <label for="donor_organ">Organ Type</label>
+      <input type="text" id="donor_organ" name="organ_type" required>
+
+      <label for="donor_blood">Blood Type</label>
+      <input type="text" id="donor_blood" name="blood_type" required>
+
+      <label for="donor_hla">HLA Typing</label>
+      <input type="text" id="donor_hla" name="hla_typing" required>
+
+      <button type="button" onclick="submitDonorData()">Submit Donor Data</button>
+    </form>
+
+    <h2>Recipient Registration</h2>
+    <form id="recipientForm">
+      <label for="recipient_id">Recipient ID</label>
+      <input type="text" id="recipient_id" name="recipient_id" required>
+
+      <label for="recipient_organ">Organ Type</label>
+      <input type="text" id="recipient_organ" name="organ_type" required>
+
+      <label for="recipient_blood">Blood Type</label>
+      <input type="text" id="recipient_blood" name="blood_type" required>
+
+      <label for="recipient_hla">HLA Typing</label>
+      <input type="text" id="recipient_hla" name="hla_typing" required>
+
+      <button type="button" onclick="submitRecipientData()">Submit Recipient Data</button>
+    </form>
+
+    <h2>Find a Match</h2>
+    <button onclick="processMatch()">Find Match</button>
+
+    <div class="results" id="matchDetails">
+      <h2>Match Results</h2>
+      <p>Submit donor and recipient data to see results.</p>
+    </div>
+
+    <h2>Test Matching with ORCHID Dataset</h2>
+    <button onclick="testMatching()">Test Match</button>
+
+    <div class="results" id="datasetMatchResults">
+      <h2>Dataset Match Results</h2>
+      <p>Click 'Test Match' to find a donor from the ORCHID dataset.</p>
+    </div>
+  </main>
+</body>
+
+</html>
